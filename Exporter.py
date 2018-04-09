@@ -1,5 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys,getopt,datetime,codecs
+# import argparse, json, datetime, uuid, 
+# import tweepy
+from textblob import TextBlob 
+# from searchtweets import ResultStream, gen_rule_payload, load_credentials
+import pandas as pd 
+# from nltk import word_tokenize
+import re, string
+
+
 if sys.version_info[0] < 3:
     import got
 else:
@@ -57,13 +66,33 @@ def main(argv):
 				
 		outputFile = codecs.open(outputFileName, "w+", "utf-8")
 
-		outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
+		outputFile.write('username,date,retweets,favorites,text,geo,mentions,hashtags,id,permalink,polarity,subjectivity')
 
 		print('Searching...\n')
 
 		def receiveBuffer(tweets):
 			for t in tweets:
-				outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink)))
+				# t.text= re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", t.text)
+				content = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,]", "", t.text)
+				content=content.split()
+
+				# to remove http......
+				if 'http' in content:
+					http_index=content.index('http')
+					content=content[:http_index]
+				content=" ".join(content)
+				
+				analysis=TextBlob(content)
+				sentiment=analysis.sentiment
+				# sentiment_score.append(analysis.sentiment)
+				t.polarity = sentiment.polarity
+				t.subjectivity=sentiment.subjectivity
+				outputFile.write(('\n%s,%s,%d,%d,"%s",%s,%s,%s,"%s",%s,%s,%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink, t.polarity, t.subjectivity)))
+
+
+				
+
+
 			outputFile.flush()
 			print('More %d saved on file...\n' % len(tweets))
 
