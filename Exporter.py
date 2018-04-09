@@ -39,6 +39,7 @@ def main(argv):
 
 			elif opt == '--since':
 				tweetCriteria.since = arg
+				outputFileName = "output_got_"+ str(tweetCriteria.since)+".csv"
 
 			elif opt == '--until':
 				tweetCriteria.until = arg
@@ -66,7 +67,7 @@ def main(argv):
 				
 		outputFile = codecs.open(outputFileName, "w+", "utf-8")
 
-		outputFile.write('username,date,retweets,favorites,text,geo,mentions,hashtags,id,permalink,polarity,subjectivity')
+		outputFile.write('username,date,retweets,favorites,polarity,subjectivity')
 
 		print('Searching...\n')
 
@@ -87,10 +88,8 @@ def main(argv):
 				# sentiment_score.append(analysis.sentiment)
 				t.polarity = sentiment.polarity
 				t.subjectivity=sentiment.subjectivity
-				outputFile.write(('\n%s,%s,%d,%d,"%s",%s,%s,%s,"%s",%s,%s,%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink, t.polarity, t.subjectivity)))
+				outputFile.write(('\n%s,%s,%d,%d,%s,%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.polarity, t.subjectivity)))
 
-
-				
 
 
 			outputFile.flush()
